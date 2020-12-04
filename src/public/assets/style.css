@@ -1,6 +1,7 @@
 body {
-  background-color: #efefef;
-  height: 100vh;
+  background-image: url('emojis-sprite.jpg');
+  background-size: 300px;
+  height: 95vh;
   font-family: 'Nerko One', cursive, sans-serif;
   font-size: 16px;
 }
