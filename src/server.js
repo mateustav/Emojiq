@@ -12,7 +12,7 @@ const {
   PORT
 } = require('../config.js');
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname + '/public/index.html'));
@@ -48,6 +48,10 @@ app.get('/oauth', (req, res) => {
       res.send(json);
     });
   }
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname+'/client/build/index.html'));
 });
 
 const urlencodedParser = express.urlencoded({ extended: false });
