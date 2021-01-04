@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nerko+One&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Nerko+One&display=swap");
 
 #root {
   height: 100%;
@@ -45,10 +45,10 @@
 }
 
 body {
-  background-image: url('emojis-sprite.jpg');
+  background-image: url("emojis-sprite.jpg");
   background-size: 300px;
   height: 95vh;
-  font-family: 'Nerko One', cursive, sans-serif;
+  font-family: "Nerko One", cursive, sans-serif;
   font-size: 16px;
 }
 
@@ -63,9 +63,9 @@ body {
   background: #fff;
   display: inline-block;
   padding: 5rem;
-  -moz-box-shadow: 1px 2px 11px 0px rgba(0,0,0,0.69);
-  -webkit-box-shadow: 1px 2px 11px 0px rgba(0,0,0,0.69);
-  box-shadow: 1px 2px 11px 0px rgba(0,0,0,0.69);
+  -moz-box-shadow: 1px 2px 11px 0px rgba(0, 0, 0, 0.69);
+  -webkit-box-shadow: 1px 2px 11px 0px rgba(0, 0, 0, 0.69);
+  box-shadow: 1px 2px 11px 0px rgba(0, 0, 0, 0.69);
 }
 
 .card p {
@@ -105,4 +105,20 @@ body {
     font-size: 3rem;
     text-align: center;
   }
+}
+
+.nav {
+  bottom: 0;
+  display: flex;
+  justify-content: space-around;
+  left: 50%;
+  margin: auto;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 30%;
+}
+
+.nav,
+.nav * {
+  border: 1px solid black;
 }
