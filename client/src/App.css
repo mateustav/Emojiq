@@ -59,6 +59,12 @@ body {
   justify-content: center;
 }
 
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .card {
   background: #fff;
   display: inline-block;
@@ -66,6 +72,8 @@ body {
   -moz-box-shadow: 1px 2px 11px 0px rgba(0, 0, 0, 0.69);
   -webkit-box-shadow: 1px 2px 11px 0px rgba(0, 0, 0, 0.69);
   box-shadow: 1px 2px 11px 0px rgba(0, 0, 0, 0.69);
+  max-width: 410px;
+  width: 100%;
 }
 
 .card p {
@@ -88,15 +96,11 @@ body {
   margin: auto;
 }
 
+.confirmation p {
+  text-align: center;
+}
+
 @media (max-width: 540px) {
-  .card p {
-    text-align: center;
-  }
-
-  .inline-emoji {
-    display: block;
-  }
-
   .card {
     width: 50%;
   }
@@ -105,10 +109,22 @@ body {
     font-size: 3rem;
     text-align: center;
   }
+
+  .card p {
+    text-align: center;
+  }
+
+  .inline-emoji {
+    display: block;
+  }
 }
 
 .nav {
-  bottom: 0;
+  background-color: #fff;
+  bottom: 5%;
+  -moz-box-shadow: 1px 2px 11px 0px rgba(0, 0, 0, 0.69);
+  -webkit-box-shadow: 1px 2px 11px 0px rgba(0, 0, 0, 0.69);
+  box-shadow: 1px 2px 11px 0px rgba(0, 0, 0, 0.69);
   display: flex;
   justify-content: space-around;
   left: 50%;
@@ -118,7 +134,13 @@ body {
   width: 30%;
 }
 
-.nav,
+.nav a {
+  padding: 0.5rem 0;
+  flex-grow: 1;
+  text-align: center;
+}
+
+/* .nav,
 .nav * {
   border: 1px solid black;
-}
+} */
