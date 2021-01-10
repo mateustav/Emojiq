@@ -1,5 +1,5 @@
 {
-  "name": "remoji",
+  "name": "emojiq",
   "version": "1.0.0",
   "description": "Turn your Slack messages into emojis when possible.",
   "main": "src/server.js",

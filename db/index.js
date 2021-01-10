@@ -45,7 +45,6 @@ class AuthedUser {
   }
 
   getUserNameAndPhoto(user, token) {
-    console.log(user, token);
     fetch(`https://slack.com/api/users.info?user=${user}`, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',

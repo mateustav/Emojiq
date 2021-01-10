@@ -54,7 +54,7 @@ class Message extends AuthedUser {
     return result;
   }
 
-  getRemoji() {
+  getEmojiq() {
     const short_names = Object.values(emojiPrimaryList);
     return this.preFormattedText().map((value) => {
       if (short_names.includes(value)) {
@@ -79,8 +79,8 @@ class Message extends AuthedUser {
         method: 'POST',
         body: JSON.stringify({
           channel: this.channel,
-          text: this.getRemoji(),
-          username: display_name || 'Remoji',
+          text: this.getEmojiq(),
+          username: display_name || 'Emojiq',
           icon_url: image || 'http://lorempixel.com/48/48'
         })
       });
