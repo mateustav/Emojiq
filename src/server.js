@@ -3,7 +3,7 @@ const express = require('express');
 const fetch = require('node-fetch');
 const app = express();
 const path = require('path');
-const { connection, AuthedUser } = require('../db');
+const AuthedUser = require('../db');
 const Message = require('./message.js');
 
 const {

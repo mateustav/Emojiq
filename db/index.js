@@ -1,19 +1,12 @@
-const mysql = require('mysql');
+const { Client } = require('pg');
+
 require('dotenv').config();
 
+const client = new Client();
+client.connect();
+
+
 const fetch = require('node-fetch');
-
-const {
-  SQL_HOST,
-  SQL_USER,
-  SQL_PW,
-} = require('../config.js');
-
-const connection = mysql.createConnection({
-  host: SQL_HOST,
-  user: SQL_USER,
-  password: SQL_PW,
-});
 
 class AuthedUser {
   constructor(team, user, access_token, bot_token) {
@@ -103,4 +96,4 @@ class AuthedUser {
   }
 }
 
-module.exports = { connection, AuthedUser };
+module.exports = AuthedUser;
