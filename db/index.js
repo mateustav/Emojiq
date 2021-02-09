@@ -17,22 +17,21 @@ class AuthedUser {
   }
 
   getDatabase() {
-    connection.query(`
+    client.query(`
     CREATE DATABASE IF NOT EXISTS ${this.team}
     DEFAULT CHARACTER SET utf8mb4;
   `);
-    connection.query(`USE ${this.team};`);
+    client.query(`USE ${this.team};`);
   }
 
   getTable() {
-    connection.query(`
+    client.query(`
       CREATE TABLE IF NOT EXISTS tokens(
-        id INT NOT NULL AUTO_INCREMENT,
-        user VARCHAR(55) NOT NULL,
+        id SERIAL PRIMARY KEY,
+        "user" VARCHAR(55) NOT NULL,
         access_token VARCHAR(250) NOT NULL,
         display_name TEXT NULL,
-        image VARCHAR(250) NULL,
-        PRIMARY KEY (id)
+        image VARCHAR(250) NULL
       );`
     );
   }
@@ -48,7 +47,7 @@ class AuthedUser {
       .then(response => {
         const user = response.user.id;
         const { display_name, image_72 } = response.user.profile;
-        connection.query(`
+        client.query(`
           UPDATE tokens
             SET
               display_name = "${display_name}",
@@ -60,7 +59,7 @@ class AuthedUser {
   }
 
   addToken(type = this.user, token = this.access_token) {
-    connection.query(`
+    client.query(`
       INSERT INTO tokens (user, access_token)
       VALUES ('${type}', '${token}')`, (err) => {
         if (err) { reject(err); throw err; }
@@ -71,17 +70,18 @@ class AuthedUser {
   getToken(type = this.user, token, user_id = this.user) {
     const that = this;
     return new Promise(function (resolve, reject) {
-      connection.query(`
+      client.query(`
       SELECT access_token FROM tokens WHERE user = ?`, type,
       (err, result) => {
+        console.log(result);
         if (err) {
-          reject(err); throw err;
+          reject(err);
         }
-        if (!result.length) {
+        if (!result) {
           that.addToken(type, token);
         }
         else {
-          connection.query(`
+          client.query(`
             SELECT display_name, image FROM tokens WHERE user = ?`, user_id, (err, user_data) => {
               if (!user_data.length) user_data[0] = {};
               const display_name = user_data[0].display_name;
