@@ -18,10 +18,9 @@ class AuthedUser {
 
   getDatabase() {
     client.query(`
-    CREATE DATABASE IF NOT EXISTS ${this.team}
-    DEFAULT CHARACTER SET utf8mb4;
+    CREATE SCHEMA IF NOT EXISTS test;
   `);
-    client.query(`USE ${this.team};`);
+    client.query(`SET search_path TO ${this.team};`);
   }
 
   getTable() {
@@ -50,19 +49,19 @@ class AuthedUser {
         client.query(`
           UPDATE tokens
             SET
-              display_name = "${display_name}",
-              image = "${image_72}"
-            WHERE user = "${user}"
-        `);
+              display_name = $1,
+              image = $2
+            WHERE user = $3
+        `, [display_name, image_72, user]);
       });
 
   }
 
   addToken(type = this.user, token = this.access_token) {
     client.query(`
-      INSERT INTO tokens (user, access_token)
-      VALUES ('${type}', '${token}')`, (err) => {
-        if (err) { reject(err); throw err; }
+      INSERT INTO tokens ("user", access_token)
+      VALUES ($1, $2)`, [type, token], (err) => {
+        if (err) { throw err; }
         this.getUserNameAndPhoto(type, token);
       });
   }
@@ -71,19 +70,18 @@ class AuthedUser {
     const that = this;
     return new Promise(function (resolve, reject) {
       client.query(`
-      SELECT access_token FROM tokens WHERE user = ?`, type,
+      SELECT access_token FROM tokens WHERE user = $1`, [type],
       (err, result) => {
-        console.log(result);
         if (err) {
           reject(err);
         }
-        if (!result) {
+        if (!result.rowCount) {
           that.addToken(type, token);
         }
         else {
           client.query(`
-            SELECT display_name, image FROM tokens WHERE user = ?`, user_id, (err, user_data) => {
-              if (!user_data.length) user_data[0] = {};
+            SELECT display_name, image FROM tokens WHERE user = $1`, [user_id], (err, user_data) => {
+              if (!user_data.rows.length) user_data[0] = {};
               const display_name = user_data[0].display_name;
               const image = user_data[0].image;
               result[0].display_name = display_name;
