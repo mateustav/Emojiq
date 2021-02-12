@@ -17,10 +17,11 @@ class AuthedUser {
   }
 
   getDatabase() {
+    const { team } = this;
     client.query(`
-    CREATE SCHEMA IF NOT EXISTS test;
+    CREATE SCHEMA IF NOT EXISTS ${team};
   `);
-    client.query(`SET search_path TO ${this.team};`);
+    client.query(`SET search_path TO ${team};`);
   }
 
   getTable() {
@@ -44,15 +45,17 @@ class AuthedUser {
     })
       .then(response => response.json())
       .then(response => {
-        const user = response.user.id;
-        const { display_name, image_72 } = response.user.profile;
-        client.query(`
-          UPDATE tokens
-            SET
-              display_name = $1,
-              image = $2
-            WHERE user = $3
-        `, [display_name, image_72, user]);
+        if (response.ok) {
+          const user = response.user.id;
+          const { display_name, image_72 } = response.user.profile;
+          client.query(`
+            UPDATE tokens
+              SET
+                display_name = $1,
+                image = $2
+              WHERE "user" = $3
+          `, [display_name, image_72, user]);
+        }
       });
 
   }
@@ -69,24 +72,28 @@ class AuthedUser {
   getToken(type = this.user, token, user_id = this.user) {
     const that = this;
     return new Promise(function (resolve, reject) {
+      console.log(type);
       client.query(`
-      SELECT access_token FROM tokens WHERE user = $1`, [type],
+      SELECT access_token FROM tokens WHERE "user" = $1`, [type],
       (err, result) => {
+
         if (err) {
           reject(err);
         }
         if (!result.rowCount) {
+          console.log(result.rowCount);
           that.addToken(type, token);
         }
         else {
           client.query(`
-            SELECT display_name, image FROM tokens WHERE user = $1`, [user_id], (err, user_data) => {
+            SELECT display_name, image FROM tokens WHERE "user" = $1`, [user_id], (err, user_data) => {
+              console.log(user_data);
               if (!user_data.rows.length) user_data[0] = {};
-              const display_name = user_data[0].display_name;
-              const image = user_data[0].image;
-              result[0].display_name = display_name;
-              result[0].image = image;
-              resolve(result);
+              const display_name = user_data.rows[0].display_name;
+              const image = user_data.rows[0].image;
+              result.rows[0].display_name = display_name;
+              result.rows[0].image = image;
+              resolve(result.rows[0]);
             });
         }
       });
