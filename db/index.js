@@ -72,7 +72,6 @@ class AuthedUser {
   getToken(type = this.user, token, user_id = this.user) {
     const that = this;
     return new Promise(function (resolve, reject) {
-      console.log(type);
       client.query(`
       SELECT access_token FROM tokens WHERE "user" = $1`, [type],
       (err, result) => {
@@ -81,13 +80,11 @@ class AuthedUser {
           reject(err);
         }
         if (!result.rowCount) {
-          console.log(result.rowCount);
           that.addToken(type, token);
         }
         else {
           client.query(`
             SELECT display_name, image FROM tokens WHERE "user" = $1`, [user_id], (err, user_data) => {
-              console.log(user_data);
               if (!user_data.rows.length) user_data[0] = {};
               const display_name = user_data.rows[0].display_name;
               const image = user_data.rows[0].image;
