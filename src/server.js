@@ -3,7 +3,7 @@ const express = require('express');
 const fetch = require('node-fetch');
 const app = express();
 const path = require('path');
-const { connection, AuthedUser } = require('../db');
+const AuthedUser = require('../db');
 const Message = require('./message.js');
 
 const {
@@ -71,7 +71,12 @@ app.post('/message', urlencodedParser, function (req, res) {
   const userType = message.isPrivate() ? 'bot' : message.user_id;
   message.getToken(userType, '', user_id)
     .then((response) => {
-      const { access_token, display_name, image } = response[0];
+      console.log(response);
+      const { 
+        access_token,
+        display_name,
+        image
+      } = response;
       message.send(access_token, display_name, image);
     });
 

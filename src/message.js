@@ -1,4 +1,4 @@
-const { AuthedUser } = require("../db");
+const AuthedUser = require("../db");
 const emojiPrimaryList = require('../lib/emojis.json');
 const emojiAltList = require('../lib/emojilib.json');
 const emojiUnicode = require('emoji-unicode');

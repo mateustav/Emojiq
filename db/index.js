@@ -1,19 +1,26 @@
-const mysql = require('mysql');
+const { Client } = require('pg');
+
 require('dotenv').config();
 
+const db_vars = {
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  port: process.env.PGPORT,
+  ssl: {
+    rejectUnauthorized: false,
+    ca: process.env.CACERT,
+  }
+};
+
+const client = new Client(db_vars);
+client.connect()
+  .then(() => console.log('connected'))
+  .catch(err => console.error('connection error', err.stack));
+
+
 const fetch = require('node-fetch');
-
-const {
-  SQL_HOST,
-  SQL_USER,
-  SQL_PW,
-} = require('../config.js');
-
-const connection = mysql.createConnection({
-  host: SQL_HOST,
-  user: SQL_USER,
-  password: SQL_PW,
-});
 
 class AuthedUser {
   constructor(team, user, access_token, bot_token) {
@@ -24,22 +31,21 @@ class AuthedUser {
   }
 
   getDatabase() {
-    connection.query(`
-    CREATE DATABASE IF NOT EXISTS ${this.team}
-    DEFAULT CHARACTER SET utf8mb4;
+    const { team } = this;
+    client.query(`
+    CREATE SCHEMA IF NOT EXISTS ${team};
   `);
-    connection.query(`USE ${this.team};`);
+    client.query(`SET search_path TO ${team};`);
   }
 
   getTable() {
-    connection.query(`
+    client.query(`
       CREATE TABLE IF NOT EXISTS tokens(
-        id INT NOT NULL AUTO_INCREMENT,
-        user VARCHAR(55) NOT NULL,
+        id SERIAL PRIMARY KEY,
+        "user" VARCHAR(55) NOT NULL,
         access_token VARCHAR(250) NOT NULL,
         display_name TEXT NULL,
-        image VARCHAR(250) NULL,
-        PRIMARY KEY (id)
+        image VARCHAR(250) NULL
       );`
     );
   }
@@ -53,24 +59,26 @@ class AuthedUser {
     })
       .then(response => response.json())
       .then(response => {
-        const user = response.user.id;
-        const { display_name, image_72 } = response.user.profile;
-        connection.query(`
-          UPDATE tokens
-            SET
-              display_name = "${display_name}",
-              image = "${image_72}"
-            WHERE user = "${user}"
-        `);
+        if (response.ok) {
+          const user = response.user.id;
+          const { display_name, image_72 } = response.user.profile;
+          client.query(`
+            UPDATE tokens
+              SET
+                display_name = $1,
+                image = $2
+              WHERE "user" = $3
+          `, [display_name, image_72, user]);
+        }
       });
 
   }
 
   addToken(type = this.user, token = this.access_token) {
-    connection.query(`
-      INSERT INTO tokens (user, access_token)
-      VALUES ('${type}', '${token}')`, (err) => {
-        if (err) { reject(err); throw err; }
+    client.query(`
+      INSERT INTO tokens ("user", access_token)
+      VALUES ($1, $2)`, [type, token], (err) => {
+        if (err) { throw err; }
         this.getUserNameAndPhoto(type, token);
       });
   }
@@ -78,24 +86,25 @@ class AuthedUser {
   getToken(type = this.user, token, user_id = this.user) {
     const that = this;
     return new Promise(function (resolve, reject) {
-      connection.query(`
-      SELECT access_token FROM tokens WHERE user = ?`, type,
+      client.query(`
+      SELECT access_token FROM tokens WHERE "user" = $1`, [type],
       (err, result) => {
+
         if (err) {
-          reject(err); throw err;
+          reject(err);
         }
-        if (!result.length) {
+        if (!result.rowCount) {
           that.addToken(type, token);
         }
         else {
-          connection.query(`
-            SELECT display_name, image FROM tokens WHERE user = ?`, user_id, (err, user_data) => {
-              if (!user_data.length) user_data[0] = {};
-              const display_name = user_data[0].display_name;
-              const image = user_data[0].image;
-              result[0].display_name = display_name;
-              result[0].image = image;
-              resolve(result);
+          client.query(`
+            SELECT display_name, image FROM tokens WHERE "user" = $1`, [user_id], (err, user_data) => {
+              if (!user_data.rows.length) user_data[0] = {};
+              const display_name = user_data.rows[0].display_name;
+              const image = user_data.rows[0].image;
+              result.rows[0].display_name = display_name;
+              result.rows[0].image = image;
+              resolve(result.rows[0]);
             });
         }
       });
@@ -103,4 +112,4 @@ class AuthedUser {
   }
 }
 
-module.exports = { connection, AuthedUser };
+module.exports = AuthedUser;
