@@ -2,7 +2,7 @@ const { Client } = require('pg');
 
 require('dotenv').config();
 
-const db_vars = {
+const client = new Client({
   user: process.env.PGUSER,
   password: process.env.PGPASSWORD,
   host: process.env.PGHOST,
@@ -12,9 +12,7 @@ const db_vars = {
     rejectUnauthorized: false,
     ca: process.env.CACERT,
   }
-};
-
-const client = new Client(db_vars);
+});
 client.connect()
   .then(() => console.log('connected'))
   .catch(err => console.error('connection error', err.stack));
@@ -32,10 +30,14 @@ class AuthedUser {
 
   getDatabase() {
     const { team } = this;
-    client.query(`
-    CREATE SCHEMA IF NOT EXISTS ${team};
-  `);
-    client.query(`SET search_path TO ${team};`);
+    client.query(
+      `CREATE SCHEMA IF NOT EXISTS ${team};`, (err, res) => {
+      if (err) console.log(err.stack);
+    });
+
+    client.query(`SET search_path TO ${team};`, (err, res) => {
+      if (err) console.log(err.stack);
+    });
   }
 
   getTable() {
@@ -46,7 +48,9 @@ class AuthedUser {
         access_token VARCHAR(250) NOT NULL,
         display_name TEXT NULL,
         image VARCHAR(250) NULL
-      );`
+      );`, (err, res) => {
+        if (err) console.log(err.stack);
+      }
     );
   }
 
@@ -68,7 +72,9 @@ class AuthedUser {
                 display_name = $1,
                 image = $2
               WHERE "user" = $3
-          `, [display_name, image_72, user]);
+          `, [display_name, image_72, user], (err, res) => {
+            if (err) console.log(err.stack);
+          });
         }
       });
 
@@ -89,10 +95,7 @@ class AuthedUser {
       client.query(`
       SELECT access_token FROM tokens WHERE "user" = $1`, [type],
       (err, result) => {
-
-        if (err) {
-          reject(err);
-        }
+        if (err) console.log(err.stack);
         if (!result.rowCount) {
           that.addToken(type, token);
         }
