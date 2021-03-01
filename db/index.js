@@ -28,17 +28,18 @@ class AuthedUser {
     this.user = user;
   }
 
-  getDatabase() {
-    const { team } = this;
-    client.query(
-      `CREATE SCHEMA IF NOT EXISTS ${team};`, (err, res) => {
-      if (err) console.log(err.stack);
-    });
 
-    client.query(`SET search_path TO ${team};`, (err, res) => {
-      if (err) console.log(err.stack);
-    });
-  }
+  // getDatabase() {
+  //   const { team } = this;
+  //   client.query(
+  //     `CREATE SCHEMA IF NOT EXISTS ${team};`, (err, res) => {
+  //     if (err) console.log(err.stack);
+  //   });
+
+  //   client.query(`SET search_path TO ${team};`, (err, res) => {
+  //     if (err) console.log(err.stack);
+  //   });
+  // }
 
   getTable() {
     client.query(`
