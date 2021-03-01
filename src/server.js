@@ -42,7 +42,7 @@ app.get('/oauth', (req, res) => {
         authed_user.access_token,
         json.access_token // This is the bot token
       );
-      user.getDatabase();
+      // user.getDatabase();
       user.getTable();
       user.getToken('bot', user.bot_token);
       user.getToken();
@@ -67,7 +67,7 @@ app.post('/message', urlencodedParser, function (req, res) {
   } = req.body;
 
   const message = new Message(team_id, user_id, channel_id, channel_name, text);
-  message.getDatabase();
+  // message.getDatabase();
   const userType = message.isPrivate() ? 'bot' : message.user_id;
   message.getToken(userType, '', user_id)
     .then((response) => {
